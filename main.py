@@ -52,9 +52,13 @@ class Page:
                         post_title = soup.find('a',attrs={'rel':'bookmark'}).text
                         storage = self.storage
                         file_name = image_url.split('/')[-1]
+                        text_name = "{}.txt".format(file_name.split('.')[0])
                         with open(pathlib.Path(storage,file_name),'wb') as f:
                             image = c.open(image_url).content
                             f.write(image)
+                        with open(pathlib.Path(storage,text_name),'w') as f:
+                            f.write("The file {} was published on {} with the title {}".format(file_name,post_datetime,post_title))
+
 
 
                     except:
