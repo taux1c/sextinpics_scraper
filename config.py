@@ -7,3 +7,5 @@ storage_path = "."
 
 area_codes = []
 user_agent = ""
+
+create_info_files = True

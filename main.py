@@ -56,8 +56,9 @@ class Page:
                         with open(pathlib.Path(storage,file_name),'wb') as f:
                             image = c.open(image_url).content
                             f.write(image)
-                        with open(pathlib.Path(storage,text_name),'w') as f:
-                            f.write("The file {} was published on {} with the title {}".format(file_name,post_datetime,post_title))
+                        if config.create_info_files:
+                            with open(pathlib.Path(storage,text_name),'w') as f:
+                                f.write("The file {} was published on {} with the title {}".format(file_name,post_datetime,post_title))
 
 
 
