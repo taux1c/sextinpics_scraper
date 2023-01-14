@@ -9,10 +9,11 @@ from bs4 import BeautifulSoup as bs
 from datetime import datetime
 import piexif
 import dateutil
+import webbrowser
 
 
 
-debug = True
+debug = False
 
 if debug:
     import personal_info as config
@@ -88,4 +89,12 @@ def go():
 
 
 if __name__ == "__main__":
-    go()
+    if not debug:
+        try:
+            webbrowser.open(library.urls.get('donations'))
+            go()
+        except:
+            print("Please consider donating at {}".format(library.urls.get('donations')))
+            go()
+    else:
+        go()
