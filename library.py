@@ -1,6 +1,6 @@
 
 urls = {
-    "home":"",
-    "base":"",
+    "home":"https://www.sextingpics.com/",
+    "base":"https://www.sextingpics.com/",
 
 }
