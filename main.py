@@ -63,6 +63,12 @@ class Page:
 
 
 def get_area_codes():
+    if len(config.area_codes) > 0:
+        areas = []
+        for area in config.area_codes:
+            areas.append(library.urls.get('tag').replace('<area_code>',area))
+        return areas
+
     with mechanicalsoup.StatefulBrowser(soup_config={'features':'lxml'}, user_agent = config.user_agent) as browser:
         browser.open(library.urls.get('home'))
         dropdown = browser.page.find('select', attrs={"name":"taxonomy_dropdown_widget_dropdown_4"}).find_all('option')
