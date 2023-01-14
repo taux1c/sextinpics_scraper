@@ -10,17 +10,12 @@ from datetime import datetime
 import piexif
 import dateutil
 import webbrowser
-
-
-
 debug = False
-
 if debug:
     import personal_info as config
 else:
     import config
 pages = []
-
 class Page:
     def __init__(self,response,link):
         self.urls=[link]
@@ -40,7 +35,6 @@ class Page:
             for url in self.urls:
                 c.open(url)
                 self.articles.append(c.page.find_all('article'))
-
     def process_articles(self):
         with mechanicalsoup.StatefulBrowser(soup_config={'features':'lxml'}, user_agent = config.user_agent) as c:
             for collection in self.articles:
@@ -59,27 +53,19 @@ class Page:
                         if config.create_info_files:
                             with open(pathlib.Path(storage,text_name),'w') as f:
                                 f.write("The file {} was published on {} with the title {}".format(file_name,post_datetime,post_title))
-
-
-
                     except:
                         pass
-
-
-
 def get_area_codes():
     if len(config.area_codes) > 0:
         areas = []
         for area in config.area_codes:
             areas.append(library.urls.get('tag').replace('<area_code>',area))
         return areas
-
     with mechanicalsoup.StatefulBrowser(soup_config={'features':'lxml'}, user_agent = config.user_agent) as browser:
         browser.open(library.urls.get('home'))
         dropdown = browser.page.find('select', attrs={"name":"taxonomy_dropdown_widget_dropdown_4"}).find_all('option')
         dropdown = [x['value'] for x in dropdown if '?tag' in x['value']]
         return dropdown
-
 async def get_pages(links):
     headers = {'user-agent': config.user_agent}
     async with AsyncClient(http2=True,headers = headers) as c:
@@ -87,18 +73,9 @@ async def get_pages(links):
             r = await c.get(link)
             _ = Page(r,link)
             pages.append(_)
-
-
 def go():
     links = get_area_codes()
     asyncio.run(get_pages(links))
-
-
-
-
-
-
-
 if __name__ == "__main__":
     if not debug:
         try:
