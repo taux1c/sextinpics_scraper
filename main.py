@@ -2,13 +2,12 @@ import mechanicalsoup
 from httpx import AsyncClient
 import sqlite3
 import hashlib
+from datetime import datetime
 import library
 import pathlib
 import asyncio
 from bs4 import BeautifulSoup as bs
-from datetime import datetime
 import piexif
-import dateutil
 import webbrowser
 debug = False
 if debug:
@@ -16,6 +15,7 @@ if debug:
 else:
     import config
 pages = []
+database_file = pathlib.Path(config.storage_path,config.database_file_name)
 class Page:
     def __init__(self,response,link):
         self.urls=[link]
@@ -47,12 +47,26 @@ class Page:
                         storage = self.storage
                         file_name = image_url.split('/')[-1]
                         text_name = "{}.txt".format(file_name.split('.')[0])
-                        with open(pathlib.Path(storage,file_name),'wb') as f:
-                            image = c.open(image_url).content
-                            f.write(image)
-                        if config.create_info_files:
-                            with open(pathlib.Path(storage,text_name),'w') as f:
-                                f.write("The file {} was published on {} with the title {}".format(file_name,post_datetime,post_title))
+                        post_id = soup.find('article')['id']
+                        area_code = soup.find('a',attrs={'rel':'tag'}).text
+                        cur.execute("SELECT post FROM posts WHERE post=? AND file_name=?",(post_id,file_name))
+                        results = []
+                        for x in cur.fetchall():
+                            for i in x:
+                                results.append(i)
+                        # if post_id not in results:
+                        if True:
+                            try:
+                                cur.execute("INSERT INTO posts VALUES(?,?,?,?,?)",(post_id,area_code,post_title,file_name,post_datetime))
+                                con.commit()
+                                with open(pathlib.Path(storage,file_name),'wb') as f:
+                                    image = c.open(image_url).content
+                                    f.write(image)
+                                if config.create_info_files:
+                                    with open(pathlib.Path(storage,text_name),'w') as f:
+                                        f.write("The file {} was published on {} with the title {}".format(file_name,post_datetime,post_title))
+                            except:
+                                pass
                     except:
                         pass
 def get_area_codes():
@@ -73,9 +87,24 @@ async def get_pages(links):
             r = await c.get(link)
             _ = Page(r,link)
             pages.append(_)
+con = sqlite3.connect(database_file)
+cur = con.cursor()
+
+def run_db():
+    cur.execute("""CREATE TABLE IF NOT EXISTS posts(
+    post text,
+    area_code text,
+    title text,
+    file_name text,
+    published_date text
+    
+    )""")
+    con.commit()
 def go():
+    run_db()
     links = get_area_codes()
     asyncio.run(get_pages(links))
+    con.close()
 if __name__ == "__main__":
     if not debug:
         try:

@@ -7,5 +7,5 @@ storage_path = "."
 
 area_codes = []
 user_agent = ""
-
+database_file_name = "downloaded.db"
 create_info_files = True
